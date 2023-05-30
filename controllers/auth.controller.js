@@ -34,10 +34,7 @@ export const startLogin = async (req = request, res = response, next) => {
         if (!result)
             return res.status(401).json({
                 ok: false,
-                messages: {
-                    type: 'error',
-                    msg: MESSAGE_ERROR_RESPONSE.CRENDENTIALS
-                }
+                messages: MESSAGE_ERROR_RESPONSE.CRENDENTIALS
             });
 
         if (isVerified(user)) {
@@ -149,10 +146,12 @@ export const startConfirmAccount = async (
                 messages: MESSAGE_ERROR_RESPONSE.DEFAULT
             });
         }
-        console.log(user);
+
         user.email_verified = true;
         user.status = USER_STATUS.VERIFICADO;
         user.token = '';
+
+        await user.save();
 
         const tokenSession = await tokenSign(user);
 

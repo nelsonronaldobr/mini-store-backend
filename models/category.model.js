@@ -1,17 +1,21 @@
-import { Schema, model } from "mongoose";
+import { Schema, model } from 'mongoose';
 
-const categorySchema = Schema({
-    name: {
-        type: String,
-        required: true,
+const categorySchema = Schema(
+    {
+        name: {
+            type: String,
+            required: true,
+            unique: true
+        },
+        status: {
+            type: String,
+            enum: ['ACTIVE', 'RETIRED'],
+            default: 'RETIRED'
+        }
     },
-    status: {
-        type: String,
-        enum: ['ACTIVO', 'RETIRADO'],
-        default: 'RETIRADO'
+    {
+        timestamps: true
     }
-}, {
-    timestamps: true
-})
+);
 
-export const Catergory = model('Category', categorySchema)
+export const Catergory = model('Category', categorySchema);

@@ -21,8 +21,8 @@ const userSchema = Schema(
         },
         status: {
             type: String,
-            enum: ['VERIFICADO', 'PENDIENTE', 'BANEADO'],
-            default: 'PENDIENTE'
+            enum: ['VERIFIED', 'PENDING', 'BANNED'],
+            default: 'PENDING'
         },
         token: {
             type: String

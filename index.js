@@ -2,7 +2,10 @@ import express from 'express';
 import { connectDB } from './database/connectDB.js';
 import { config } from 'dotenv';
 import cors from 'cors';
-import authRouter from './routes/authenticate.routes.js';
+import authRouter from './routes/auth.routes.js';
+import roleRouter from './routes/role.routes.js';
+import categoryRouter from './routes/category.routes.js';
+import couponRouter from './routes/coupon.routes.js';
 /* -------------------------------------------------------------------------- */
 /*                                    INIT                                    */
 /* -------------------------------------------------------------------------- */
@@ -23,6 +26,9 @@ app.use(express.json());
 /* -------------------------------------------------------------------------- */
 
 app.use('/api/auth', authRouter);
+app.use('/api/dashboard/role', roleRouter);
+app.use('/api/dashboard/category', categoryRouter);
+app.use('/api/dashboard/coupon', couponRouter);
 
 /* -------------------------------------------------------------------------- */
 /*                                   LISTEN                                   */

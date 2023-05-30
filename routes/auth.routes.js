@@ -4,7 +4,7 @@ import {
     startRenewToken,
     startLogin,
     startConfirmAccount
-} from '../controller/authenticate.controller.js';
+} from '../controller/auth.controller.js';
 import { checkAuth } from '../middlewares/checkAuth.middleware.js';
 import { check } from 'express-validator';
 import { expressValidator } from '../middlewares/expressValidator.middleware.js';
