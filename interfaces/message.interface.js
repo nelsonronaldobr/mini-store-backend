@@ -1,5 +1,6 @@
 import { CATEGORY_STATUS } from './category.interface.js';
 import { COUPON_STATUS } from './coupon.interface.js';
+import { PRODUCT_STATUS } from './product.interface.js';
 
 export const MESSAGE_ERROR_RESPONSE = {
     DEFAULT: {
@@ -81,6 +82,23 @@ export const MESSAGE_DASHBOARD_SUCCESS_RESPONSE = {
         return {
             type: 'success',
             msg: `El coupon ${code} ha sido ${type} correctamente.`
+        };
+    },
+    CREATED_PRODUCT: ({ name }) => ({
+        type: 'success',
+        msg: `El producto ${name} ha sido creado correctamente.`
+    }),
+    UPDATED_PRODUCT: ({ name }) => ({
+        type: 'success',
+        msg: `El producto ${name} ha sido actualizado correctamente.`
+    }),
+    TOGGLE_PRODUCT: ({ name, status }) => {
+        const type =
+            status === PRODUCT_STATUS.ACTIVE ? 'restaurado' : 'eliminado';
+
+        return {
+            type: 'success',
+            msg: `El producto ${name} ha sido ${type} correctamente.`
         };
     }
 };

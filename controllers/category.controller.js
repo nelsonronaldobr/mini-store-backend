@@ -5,7 +5,7 @@ import {
     MESSAGE_ERROR_RESPONSE
 } from '../interfaces/message.interface.js';
 import { Catergory } from '../models/category.model.js';
-import mongoose from 'mongoose';
+import mongoose, { isValidObjectId } from 'mongoose';
 import { CATEGORY_STATUS } from '../interfaces/category.interface.js';
 
 export const startGetCategories = async (
@@ -28,10 +28,15 @@ export const startGetCategories = async (
     }
 };
 
+/* -------------------------------------------------------------------------- */
+/*                             GET CATEGORY BY ID                             */
+/* -------------------------------------------------------------------------- */
 export const startGetCategory = async (req = request, res = response, next) => {
+    /* extraemos el ID de los params */
     const { id } = req.params;
 
-    const isValid = mongoose.Types.ObjectId.isValid(id);
+    /* validamos si el ID es un ObjectId */
+    const isValid = isValidObjectId(id);
 
     if (!isValid) {
         return res
@@ -40,8 +45,10 @@ export const startGetCategory = async (req = request, res = response, next) => {
     }
 
     try {
+        /* buscar categoria por ID */
         const category = await Catergory.findById(id).select('-__v');
 
+        /* devolvemos la categoria en caso exista, si no existe devolvemos un error */
         if (!category) {
             return res.status(404).json({
                 ok: false,
@@ -95,16 +102,23 @@ export const startCreateCategories = async (
         });
     }
 };
-
+/* -------------------------------------------------------------------------- */
+/*                               CREATE CATEGORY                              */
+/* -------------------------------------------------------------------------- */
 export const startCreateCategory = async (
     req = request,
     res = response,
     next
 ) => {
+    /* creamos un nuevo objecto a partir del body */
+    const { ...create } = req.body;
     try {
-        const category = Catergory(req.body);
+        /* creamos una nueva instancia de categoria con los datos del body */
+        const category = Catergory(create);
+        /* guardamos la categoria */
         await category.save();
 
+        /* si se guardo correctamente devolvemos un ok */
         return res.status(200).json({
             ok: true,
             messages:
@@ -120,14 +134,21 @@ export const startCreateCategory = async (
     }
 };
 
+/* -------------------------------------------------------------------------- */
+/*                            UPDATE CATEGORY BY ID                           */
+/* -------------------------------------------------------------------------- */
 export const startUpdateCategory = async (
     req = request,
     res = response,
     next
 ) => {
+    /* extraemos el ID de los params */
     const { id } = req.params;
+    /* creamos un nuevo objecto a partir del body */
+    const { ...update } = req.body;
 
-    const isValid = mongoose.Types.ObjectId.isValid(id);
+    /* validamos si el ID es un ObjectId */
+    const isValid = isValidObjectId(id);
 
     if (!isValid) {
         return res
@@ -136,8 +157,17 @@ export const startUpdateCategory = async (
     }
 
     try {
-        const category = await Catergory.findById(id);
+        /* guardamos la categoria con la nueva data */
+        /* new : true para que nos devuelva la categoria actualizada */
+        const category = await Catergory.findByIdAndUpdate(
+            id,
+            { ...update },
+            {
+                new: true
+            }
+        );
 
+        /* si la categoria no existe retorna un mensaje de error */
         if (!category) {
             return res.status(404).json({
                 ok: false,
@@ -145,10 +175,7 @@ export const startUpdateCategory = async (
                     MESSAGE_DASHBOARD_ERROR_RESPONSE.NOT_FOUND_DOCUMENT(id)
             });
         }
-
-        category.name = req.body.name;
-        await category.save();
-
+        /* si existe devolvemos un ok */
         return res.status(200).json({
             ok: true,
             messages:
@@ -159,14 +186,17 @@ export const startUpdateCategory = async (
         res.status(404).json({ ok: false });
     }
 };
-
+/* -------------------------------------------------------------------------- */
+/*                         TOGGLE STATE CATEGORY BY ID                        */
+/* -------------------------------------------------------------------------- */
 export const startDeleteCategory = async (
     req = request,
     res = response,
     next
 ) => {
+    /* extraemos el ID de los params */
     const { id } = req.params;
-
+    /* validamos si el ID es un ObjectId */
     const isValid = mongoose.Types.ObjectId.isValid(id);
 
     if (!isValid) {
@@ -176,8 +206,10 @@ export const startDeleteCategory = async (
     }
 
     try {
+        /* buscamos la categoria por ID */
         const category = await Catergory.findById(id);
 
+        /* en caso no existe devolvemos un error */
         if (!category) {
             return res.status(404).json({
                 ok: false,
@@ -186,14 +218,16 @@ export const startDeleteCategory = async (
             });
         }
 
-        // Cambiar el estado al opuesto
+        // Cambiamos el estado opuesto del status ACTIVE | RETIRED
         category.status =
             category.status === CATEGORY_STATUS.ACTIVE
                 ? CATEGORY_STATUS.RETIRED
                 : CATEGORY_STATUS.ACTIVE;
 
+        /* guardamos la categoria actualizada */
         await category.save();
 
+        /* devolvemos un ok */
         return res.status(200).json({
             ok: true,
             messages:

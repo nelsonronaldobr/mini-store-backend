@@ -10,6 +10,7 @@ import {
     MESSAGE_SUCCESS_RESPONSE
 } from '../interfaces/message.interface.js';
 import { USER_STATUS } from '../interfaces/user.interface.js';
+import slugify from 'slugify';
 
 /* -------------------------------------------------------------------------- */
 /*                               LOGIN FUNCTION                               */
@@ -74,7 +75,7 @@ export const startLogin = async (req = request, res = response, next) => {
 /*                              REGISTER FUNCTION                             */
 /* -------------------------------------------------------------------------- */
 export const startRegister = async (req = request, res = response, next) => {
-    const { email, password } = req.body;
+    const { email, password, username } = req.body;
 
     try {
         let user = await User.findOne({ email });
@@ -87,6 +88,11 @@ export const startRegister = async (req = request, res = response, next) => {
 
         const role = await Role.findOne({ name: 'CUSTOMER' });
         user = User(req.body);
+        user.username = username;
+        user.slug = slugify(username.toString(), {
+            strict: true,
+            lower: true
+        });
         user.token = generateToken();
         user.password = await bcryptHash(password);
         user.role = role.id;

@@ -3,18 +3,15 @@ import { checkAuth } from '../middlewares/checkAuth.middleware.js';
 import { checkRoleAuth } from '../middlewares/checkRoleAuth.middleware.js';
 import { USER_ROLES } from '../interfaces/user.interface.js';
 import {
-    startGetCategories,
-    startCreateCategories,
     startCreateCategory,
     startGetCategory,
     startDeleteCategory,
     startUpdateCategory
 } from '../controllers/category.controller.js';
 import { expressValidator } from '../middlewares/expressValidator.middleware.js';
-import { check } from 'express-validator';
+import { categoryValidations } from '../validations/categoryValidations.js';
 
 const router = Router();
-
 /* -------------------------------------------------------------------------- */
 /*                               CREATE CATEGORY                              */
 /* -------------------------------------------------------------------------- */
@@ -23,12 +20,7 @@ router.post(
     [
         checkAuth,
         checkRoleAuth([USER_ROLES.ADMIN]),
-        check(
-            'name',
-            'Por favor ingrese de la categoría (mínimo de 2 caracteres).'
-        )
-            .notEmpty()
-            .isLength({ min: 2 }),
+        ...categoryValidations,
         expressValidator
     ],
     startCreateCategory
@@ -51,12 +43,7 @@ router
         [
             checkAuth,
             checkRoleAuth([USER_ROLES.ADMIN]),
-            check(
-                'name',
-                'Por favor ingrese de la categoría (mínimo de 2 caracteres).'
-            )
-                .notEmpty()
-                .isLength({ min: 2 }),
+            ...categoryValidations,
             expressValidator
         ],
         startUpdateCategory

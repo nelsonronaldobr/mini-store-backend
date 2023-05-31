@@ -1,56 +1,52 @@
 import { Router } from 'express';
+import {
+    startCreateProduct,
+    startDeleteProduct,
+    startGetProduct,
+    startUpdateProduct
+} from '../controllers/product.controller.js';
 import { checkAuth } from '../middlewares/checkAuth.middleware.js';
 import { checkRoleAuth } from '../middlewares/checkRoleAuth.middleware.js';
-import {
-    startGetCoupon,
-    startCreateCoupon,
-    startUpdateCoupon,
-    startDeleteCoupon
-} from '../controllers/coupon.controller.js';
 import { USER_ROLES } from '../interfaces/user.interface.js';
 import { expressValidator } from '../middlewares/expressValidator.middleware.js';
-import { couponValidations } from '../validations/couponValidations.js';
+import { productValidations } from '../validations/productValidations.js';
 
 const router = Router();
 /* -------------------------------------------------------------------------- */
-/*                                CREATE COUPON                               */
+/*                               CREATE PRODUCT                               */
 /* -------------------------------------------------------------------------- */
 router.post(
     '/',
     [
         checkAuth,
         checkRoleAuth([USER_ROLES.ADMIN]),
-        ...couponValidations,
+        ...productValidations,
         expressValidator
     ],
-    startCreateCoupon
+    startCreateProduct
 );
 
 router
     .route('/:id')
     /* -------------------------------------------------------------------------- */
-    /*                                 GET COUPON                                 */
+    /*                                 GET PRODUCT                                */
     /* -------------------------------------------------------------------------- */
-    .get(
-        checkAuth,
-        checkRoleAuth([USER_ROLES.SALESMAN, USER_ROLES.ADMIN]),
-        startGetCoupon
-    )
+    .get(checkAuth, checkRoleAuth([USER_ROLES.ADMIN]), startGetProduct)
     /* -------------------------------------------------------------------------- */
-    /*                                UPDATE COUPON                               */
+    /*                               UPDATE PRODUCT                               */
     /* -------------------------------------------------------------------------- */
     .put(
         [
             checkAuth,
             checkRoleAuth([USER_ROLES.ADMIN]),
-            ...couponValidations,
+            ...productValidations,
             expressValidator
         ],
-        startUpdateCoupon
+        startUpdateProduct
     )
     /* -------------------------------------------------------------------------- */
-    /*                                DELETE COUPON                               */
+    /*                               DELETE PRODUCT                               */
     /* -------------------------------------------------------------------------- */
-    .delete(checkAuth, checkRoleAuth([USER_ROLES.ADMIN]), startDeleteCoupon);
+    .delete(checkAuth, checkRoleAuth([USER_ROLES.ADMIN]), startDeleteProduct);
 
 export default router;
