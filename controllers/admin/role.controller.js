@@ -1,6 +1,6 @@
 import { request, response } from 'express';
-import { MESSAGE_ERROR_RESPONSE } from '../interfaces/message.interface.js';
-import { Role } from '../models/role.model.js';
+import { MESSAGE_ERROR_RESPONSE } from '../../interfaces/message.interface.js';
+import { Role } from '../../models/role.model.js';
 
 export const startGetRoles = async (req = request, res = response, next) => {
     try {

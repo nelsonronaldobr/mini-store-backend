@@ -4,13 +4,13 @@ import {
     startRenewToken,
     startLogin,
     startConfirmAccount
-} from '../controllers/auth.controller.js';
-import { checkAuth } from '../middlewares/checkAuth.middleware.js';
-import { expressValidator } from '../middlewares/expressValidator.middleware.js';
+} from '../../controllers/auth/auth.controller.js';
+import { checkAuth } from '../../middlewares/checkAuth.middleware.js';
+import { expressValidator } from '../../middlewares/expressValidator.middleware.js';
 import {
     loginValidations,
     registerValidations
-} from '../validations/authValidations.js';
+} from '../../validations/authValidations.js';
 const router = Router();
 
 /* -------------------------------------------------------------------------- */

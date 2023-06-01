@@ -4,12 +4,11 @@ import {
     startDeleteProduct,
     startGetProduct,
     startUpdateProduct
-} from '../controllers/product.controller.js';
-import { checkAuth } from '../middlewares/checkAuth.middleware.js';
-import { checkRoleAuth } from '../middlewares/checkRoleAuth.middleware.js';
-import { USER_ROLES } from '../interfaces/user.interface.js';
-import { expressValidator } from '../middlewares/expressValidator.middleware.js';
-import { productValidations } from '../validations/productValidations.js';
+} from '../../controllers/admin/product.controller.js';
+import { checkRoleAuth } from '../../middlewares/checkRoleAuth.middleware.js';
+import { USER_ROLES } from '../../interfaces/user.interface.js';
+import { expressValidator } from '../../middlewares/expressValidator.middleware.js';
+import { productValidations } from '../../validations/productValidations.js';
 
 const router = Router();
 /* -------------------------------------------------------------------------- */
@@ -18,7 +17,6 @@ const router = Router();
 router.post(
     '/',
     [
-        checkAuth,
         checkRoleAuth([USER_ROLES.ADMIN]),
         ...productValidations,
         expressValidator
@@ -31,13 +29,12 @@ router
     /* -------------------------------------------------------------------------- */
     /*                                 GET PRODUCT                                */
     /* -------------------------------------------------------------------------- */
-    .get(checkAuth, checkRoleAuth([USER_ROLES.ADMIN]), startGetProduct)
+    .get(checkRoleAuth([USER_ROLES.ADMIN]), startGetProduct)
     /* -------------------------------------------------------------------------- */
     /*                               UPDATE PRODUCT                               */
     /* -------------------------------------------------------------------------- */
     .put(
         [
-            checkAuth,
             checkRoleAuth([USER_ROLES.ADMIN]),
             ...productValidations,
             expressValidator
@@ -47,6 +44,6 @@ router
     /* -------------------------------------------------------------------------- */
     /*                               DELETE PRODUCT                               */
     /* -------------------------------------------------------------------------- */
-    .delete(checkAuth, checkRoleAuth([USER_ROLES.ADMIN]), startDeleteProduct);
+    .delete(checkRoleAuth([USER_ROLES.ADMIN]), startDeleteProduct);
 
 export default router;

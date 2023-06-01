@@ -1,15 +1,15 @@
 import { Router } from 'express';
-import { checkAuth } from '../middlewares/checkAuth.middleware.js';
-import { checkRoleAuth } from '../middlewares/checkRoleAuth.middleware.js';
-import { USER_ROLES } from '../interfaces/user.interface.js';
+import { checkAuth } from '../../middlewares/checkAuth.middleware.js';
+import { checkRoleAuth } from '../../middlewares/checkRoleAuth.middleware.js';
+import { USER_ROLES } from '../../interfaces/user.interface.js';
 import {
     startCreateCategory,
     startGetCategory,
     startDeleteCategory,
     startUpdateCategory
-} from '../controllers/category.controller.js';
-import { expressValidator } from '../middlewares/expressValidator.middleware.js';
-import { categoryValidations } from '../validations/categoryValidations.js';
+} from '../../controllers/admin/category.controller.js';
+import { expressValidator } from '../../middlewares/expressValidator.middleware.js';
+import { categoryValidations } from '../../validations/categoryValidations.js';
 
 const router = Router();
 /* -------------------------------------------------------------------------- */
@@ -18,7 +18,6 @@ const router = Router();
 router.post(
     '/',
     [
-        checkAuth,
         checkRoleAuth([USER_ROLES.ADMIN]),
         ...categoryValidations,
         expressValidator
@@ -32,7 +31,6 @@ router
     /*                                GET CATEGORY                                */
     /* -------------------------------------------------------------------------- */
     .get(
-        checkAuth,
         checkRoleAuth([USER_ROLES.ADMIN, USER_ROLES.SALESMAN]),
         startGetCategory
     )
@@ -41,7 +39,6 @@ router
     /* -------------------------------------------------------------------------- */
     .put(
         [
-            checkAuth,
             checkRoleAuth([USER_ROLES.ADMIN]),
             ...categoryValidations,
             expressValidator
@@ -51,6 +48,6 @@ router
     /* -------------------------------------------------------------------------- */
     /*                               DELETE CATEGORY                              */
     /* -------------------------------------------------------------------------- */
-    .delete(checkAuth, checkRoleAuth([USER_ROLES.ADMIN]), startDeleteCategory);
+    .delete(checkRoleAuth([USER_ROLES.ADMIN]), startDeleteCategory);
 
 export default router;

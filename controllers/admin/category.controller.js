@@ -3,10 +3,10 @@ import {
     MESSAGE_DASHBOARD_ERROR_RESPONSE,
     MESSAGE_DASHBOARD_SUCCESS_RESPONSE,
     MESSAGE_ERROR_RESPONSE
-} from '../interfaces/message.interface.js';
-import { Catergory } from '../models/category.model.js';
+} from '../../interfaces/message.interface.js';
+import { Catergory } from '../../models/category.model.js';
 import mongoose, { isValidObjectId } from 'mongoose';
-import { CATEGORY_STATUS } from '../interfaces/category.interface.js';
+import { CATEGORY_STATUS } from '../../interfaces/category.interface.js';
 
 export const startGetCategories = async (
     req = request,
@@ -183,7 +183,7 @@ export const startUpdateCategory = async (
         });
     } catch (error) {
         console.log(error);
-        res.status(404).json({ ok: false });
+        res.status(500).json({ ok: false });
     }
 };
 /* -------------------------------------------------------------------------- */

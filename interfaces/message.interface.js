@@ -26,7 +26,7 @@ export const MESSAGE_ERROR_RESPONSE = {
     },
     AUTHORIZATION: {
         type: 'error',
-        msg: 'Usted no cuenta con el rango de autorización, Por favor comuniquese con el Administrador.'
+        msg: 'Usted no cuenta con los permisos necesarios, Por favor comuníquese con el Administrador.'
     },
     ARGUMENT: {
         type: 'error',

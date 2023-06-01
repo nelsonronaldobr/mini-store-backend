@@ -1,13 +1,13 @@
 import { request, response } from 'express';
-import { Product } from '../models/product.model.js';
-import { Catergory } from '../models/category.model.js';
+import { Product } from '../../models/product.model.js';
+import { Catergory } from '../../models/category.model.js';
 import {
     MESSAGE_DASHBOARD_ERROR_RESPONSE,
     MESSAGE_DASHBOARD_SUCCESS_RESPONSE,
     MESSAGE_ERROR_RESPONSE
-} from '../interfaces/message.interface.js';
+} from '../../interfaces/message.interface.js';
 import { isValidObjectId } from 'mongoose';
-import { PRODUCT_STATUS } from '../interfaces/product.interface.js';
+import { PRODUCT_STATUS } from '../../interfaces/product.interface.js';
 
 /* -------------------------------------------------------------------------- */
 /*                               CREATE PRODUCT                               */
@@ -43,7 +43,7 @@ export const startCreateProduct = async (
         });
     } catch (error) {
         console.log(error);
-        res.status(404).json({
+        res.status(500).json({
             ok: false,
             messages: MESSAGE_ERROR_RESPONSE.DEFAULT
         });
@@ -111,7 +111,7 @@ export const startUpdateProduct = async (
         });
     } catch (error) {
         console.log(error);
-        res.status(404).json({
+        res.status(500).json({
             ok: false,
             messages: MESSAGE_ERROR_RESPONSE.DEFAULT
         });
@@ -162,7 +162,7 @@ export const startDeleteProduct = async (
         });
     } catch (error) {
         console.log(error);
-        res.status(404).json({
+        res.status(500).json({
             ok: false,
             messages: MESSAGE_ERROR_RESPONSE.DEFAULT
         });
@@ -200,7 +200,7 @@ export const startGetProduct = async (req = request, res = response, next) => {
         });
     } catch (error) {
         console.log(error);
-        res.status(404).json({
+        res.status(500).json({
             ok: false,
             messages: MESSAGE_ERROR_RESPONSE.DEFAULT
         });

@@ -4,9 +4,9 @@ import {
     MESSAGE_DASHBOARD_ERROR_RESPONSE,
     MESSAGE_DASHBOARD_SUCCESS_RESPONSE,
     MESSAGE_ERROR_RESPONSE
-} from '../interfaces/message.interface.js';
-import { Coupon } from '../models/coupon.model.js';
-import { COUPON_STATUS } from '../interfaces/coupon.interface.js';
+} from '../../interfaces/message.interface.js';
+import { Coupon } from '../../models/coupon.model.js';
+import { COUPON_STATUS } from '../../interfaces/coupon.interface.js';
 
 //import('../interfaces/ResponseTypes.js');
 
