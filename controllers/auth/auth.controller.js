@@ -1,15 +1,20 @@
 import { request, response } from 'express';
-import { User } from '../models/user.model.js';
-import { tokenSign } from '../helpers/generateToken.js';
-import { bcryptHash, bcryptCompare } from '../helpers/generateHash.js';
-import { generateToken } from '../helpers/generateId.js';
-import { isBanned, isPending, isVerified } from '../helpers/statusAccount.js';
-import { Role } from '../models/role.model.js';
+import { User } from '../../models/user.model.js';
+import { tokenSign } from '../../helpers/generateToken.js';
+import { bcryptHash, bcryptCompare } from '../../helpers/generateHash.js';
+import { generateToken } from '../../helpers/generateId.js';
+import {
+    isBanned,
+    isPending,
+    isVerified
+} from '../../helpers/statusAccount.js';
+import { Role } from '../../models/role.model.js';
 import {
     MESSAGE_ERROR_RESPONSE,
     MESSAGE_SUCCESS_RESPONSE
-} from '../interfaces/message.interface.js';
-import { USER_STATUS } from '../interfaces/user.interface.js';
+} from '../../interfaces/message.interface.js';
+import { USER_STATUS } from '../../interfaces/user.interface.js';
+import slugify from 'slugify';
 
 /* -------------------------------------------------------------------------- */
 /*                               LOGIN FUNCTION                               */
@@ -23,22 +28,20 @@ export const startLogin = async (req = request, res = response, next) => {
             .select('-createdAt -updatedAt -token -email -__v')
             .populate('role', 'name');
 
-        if (!user)
+        if (!user) {
             return res.status(400).json({
                 ok: false,
                 messages: MESSAGE_ERROR_RESPONSE.USER_NOT_EXIST
             });
-
+        }
         const result = await bcryptCompare(password, user.password);
 
-        if (!result)
+        if (!result) {
             return res.status(401).json({
                 ok: false,
-                messages: {
-                    type: 'error',
-                    msg: MESSAGE_ERROR_RESPONSE.CRENDENTIALS
-                }
+                messages: MESSAGE_ERROR_RESPONSE.CRENDENTIALS
             });
+        }
 
         if (isVerified(user)) {
             const tokenSession = await tokenSign(user);
@@ -49,7 +52,8 @@ export const startLogin = async (req = request, res = response, next) => {
                 user: {
                     username: user.username,
                     photo_url: user.photo_url,
-                    role: user.role.name
+                    role: user.role.name,
+                    slug: user.slug
                 },
                 tokenSession
             });
@@ -64,6 +68,10 @@ export const startLogin = async (req = request, res = response, next) => {
                 messages: MESSAGE_ERROR_RESPONSE.USER_BANNED
             });
         }
+        res.status(500).json({
+            ok: false,
+            messages: MESSAGE_ERROR_RESPONSE.DEFAULT
+        });
     } catch (error) {
         console.log(error);
         res.status(500).json({
@@ -77,19 +85,25 @@ export const startLogin = async (req = request, res = response, next) => {
 /*                              REGISTER FUNCTION                             */
 /* -------------------------------------------------------------------------- */
 export const startRegister = async (req = request, res = response, next) => {
-    const { email, password } = req.body;
+    const { email, password, username } = req.body;
 
     try {
         let user = await User.findOne({ email });
 
-        if (user)
+        if (user) {
             return res.status(400).json({
                 ok: false,
                 messages: MESSAGE_ERROR_RESPONSE.EMAIL_EXIST
             });
+        }
 
         const role = await Role.findOne({ name: 'CUSTOMER' });
         user = User(req.body);
+        user.username = username;
+        user.slug = slugify(username.toString(), {
+            strict: true,
+            lower: true
+        });
         user.token = generateToken();
         user.password = await bcryptHash(password);
         user.role = role.id;
@@ -122,7 +136,8 @@ export const startRenewToken = async (req = request, res = response, next) => {
         user: {
             username: user.username,
             photo_url: user.photo_url,
-            role: user.role.name
+            role: user.role.name,
+            slug: user.slug
         },
         tokenSession
     });
@@ -149,10 +164,12 @@ export const startConfirmAccount = async (
                 messages: MESSAGE_ERROR_RESPONSE.DEFAULT
             });
         }
-        console.log(user);
+
         user.email_verified = true;
-        user.status = USER_STATUS.VERIFICADO;
+        user.status = USER_STATUS.VERIFIED;
         user.token = '';
+
+        await user.save();
 
         const tokenSession = await tokenSign(user);
 
@@ -162,7 +179,8 @@ export const startConfirmAccount = async (
             user: {
                 username: user.username,
                 photo_url: user.photo_url,
-                role: user.role.name
+                role: user.role.name,
+                slug: user.slug
             },
             tokenSession
         });

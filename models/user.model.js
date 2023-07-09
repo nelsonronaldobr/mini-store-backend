@@ -6,6 +6,11 @@ const userSchema = Schema(
             type: String,
             required: true
         },
+        slug: {
+            type: String,
+            required: true,
+            unique: true
+        },
         email: {
             type: String,
             required: true,
@@ -21,8 +26,8 @@ const userSchema = Schema(
         },
         status: {
             type: String,
-            enum: ['VERIFICADO', 'PENDIENTE', 'BANEADO'],
-            default: 'PENDIENTE'
+            enum: ['VERIFIED', 'PENDING', 'BANNED'],
+            default: 'PENDING'
         },
         token: {
             type: String

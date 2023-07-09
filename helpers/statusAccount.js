@@ -5,13 +5,13 @@ import { USER_STATUS } from '../interfaces/user.interface.js';
 /* -------------------------------------------------------------------------- */
 
 export const isVerified = ({ email_verified, status }) => {
-    return email_verified && status === USER_STATUS.VERIFICADO;
+    return email_verified && status === USER_STATUS.VERIFIED;
 };
 
 export const isPending = ({ email_verified, status }) => {
-    return !email_verified || status === USER_STATUS.PENDIENTE;
+    return !email_verified || status === USER_STATUS.PENDING;
 };
 
 export const isBanned = ({ status }) => {
-    return status === USER_STATUS.BANEADO;
+    return status === USER_STATUS.BANNED;
 };

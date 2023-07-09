@@ -2,7 +2,7 @@ import { response, request } from 'express';
 import { validationResult } from 'express-validator';
 
 /* -------------------------------------------------------------------------- */
-/*                   VALIDATOR MESSAGES ERRRORS | MIDDLEWARE                  */
+/*                   VALIDATOR MESSAGES ERRORS | MIDDLEWARE                  */
 /* -------------------------------------------------------------------------- */
 
 export const expressValidator = async (req = request, res = response, next) => {
