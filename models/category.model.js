@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+import { CATEGORY_STATUS } from '../interfaces/category.interface.js';
 
 const categorySchema = Schema(
     {
@@ -9,8 +10,8 @@ const categorySchema = Schema(
         },
         status: {
             type: String,
-            enum: ['ACTIVE', 'RETIRED'],
-            default: 'RETIRED'
+            enum: [CATEGORY_STATUS.ACTIVE, CATEGORY_STATUS.RETIRED],
+            default: CATEGORY_STATUS.RETIRED
         }
     },
     {
@@ -18,4 +19,4 @@ const categorySchema = Schema(
     }
 );
 
-export const Catergory = model('Category', categorySchema);
+export const Category = model('Category', categorySchema);

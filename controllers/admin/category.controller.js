@@ -4,17 +4,66 @@ import {
     MESSAGE_DASHBOARD_SUCCESS_RESPONSE,
     MESSAGE_ERROR_RESPONSE
 } from '../../interfaces/message.interface.js';
-import { Catergory } from '../../models/category.model.js';
+import { Category } from '../../models/category.model.js';
 import mongoose, { isValidObjectId } from 'mongoose';
 import { CATEGORY_STATUS } from '../../interfaces/category.interface.js';
 
+/* -------------------------------------------------------------------------- */
+/*                          GET CATEGORIES PAGINATION                         */
+/* -------------------------------------------------------------------------- */
+export const startGetCategoriesPerPage = async (
+    req = request,
+    res = response,
+    next
+) => {
+    const { _page = 1, _limit = 2, _search } = req.query;
+    try {
+        const startIndex = (Number(_page) - 1) * _limit;
+        let query = Category.find();
+
+        if (_search) {
+            query = query.where('name', new RegExp(_search, 'i'));
+        }
+
+        let totalDocuments = await Category.countDocuments({});
+
+        if (_search) {
+            totalDocuments = await Category.countDocuments(query);
+        }
+
+        const categories = await query
+            .select('-__v')
+            .sort({ _id: -1 })
+            .skip(startIndex)
+            .limit(Number(_limit));
+
+        const numberOfPages = Math.ceil(totalDocuments / _limit);
+
+        return res.status(200).json({
+            ok: true,
+            categories,
+            page: Number(_page),
+            numberOfPages,
+            totalDocuments
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            messages: MESSAGE_ERROR_RESPONSE.DEFAULT
+        });
+    }
+};
 export const startGetCategories = async (
     req = request,
     res = response,
     next
 ) => {
     try {
-        const categories = await Catergory.find().select('-__v');
+        const categories = await Category.find({
+            status: CATEGORY_STATUS.ACTIVE
+        });
+
         return res.status(200).json({
             ok: true,
             categories
@@ -27,7 +76,6 @@ export const startGetCategories = async (
         });
     }
 };
-
 /* -------------------------------------------------------------------------- */
 /*                             GET CATEGORY BY ID                             */
 /* -------------------------------------------------------------------------- */
@@ -46,7 +94,7 @@ export const startGetCategory = async (req = request, res = response, next) => {
 
     try {
         /* buscar categoria por ID */
-        const category = await Catergory.findById(id).select('-__v');
+        const category = await Category.findById(id).select('-__v');
 
         /* devolvemos la categoria en caso exista, si no existe devolvemos un error */
         if (!category) {
@@ -88,7 +136,7 @@ export const startCreateCategories = async (
     ];
 
     try {
-        const categories = await Catergory.create(categoryData);
+        const categories = await Category.create(categoryData);
 
         return res.status(200).json({
             ok: true,
@@ -114,7 +162,7 @@ export const startCreateCategory = async (
     const { ...create } = req.body;
     try {
         /* creamos una nueva instancia de categoria con los datos del body */
-        const category = Catergory(create);
+        const category = Category(create);
         /* guardamos la categoria */
         await category.save();
 
@@ -146,7 +194,6 @@ export const startUpdateCategory = async (
     const { id } = req.params;
     /* creamos un nuevo objecto a partir del body */
     const { ...update } = req.body;
-
     /* validamos si el ID es un ObjectId */
     const isValid = isValidObjectId(id);
 
@@ -159,7 +206,7 @@ export const startUpdateCategory = async (
     try {
         /* guardamos la categoria con la nueva data */
         /* new : true para que nos devuelva la categoria actualizada */
-        const category = await Catergory.findByIdAndUpdate(
+        const category = await Category.findByIdAndUpdate(
             id,
             { ...update },
             {
@@ -207,7 +254,7 @@ export const startDeleteCategory = async (
 
     try {
         /* buscamos la categoria por ID */
-        const category = await Catergory.findById(id);
+        const category = await Category.findById(id);
 
         /* en caso no existe devolvemos un error */
         if (!category) {

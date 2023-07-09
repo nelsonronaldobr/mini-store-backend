@@ -1,6 +1,6 @@
 import { request, response } from 'express';
 import { Product } from '../../models/product.model.js';
-import { Catergory } from '../../models/category.model.js';
+import { Category } from '../../models/category.model.js';
 import {
     MESSAGE_DASHBOARD_ERROR_RESPONSE,
     MESSAGE_DASHBOARD_SUCCESS_RESPONSE,
@@ -8,6 +8,7 @@ import {
 } from '../../interfaces/message.interface.js';
 import { isValidObjectId } from 'mongoose';
 import { PRODUCT_STATUS } from '../../interfaces/product.interface.js';
+import slugify from 'slugify';
 
 /* -------------------------------------------------------------------------- */
 /*                               CREATE PRODUCT                               */
@@ -17,11 +18,12 @@ export const startCreateProduct = async (
     res = response,
     next
 ) => {
-    /* destructuring  para tomar los datos */
-    const { category } = req.body;
+    /* destructuring para tomar los datos */
+    const { category, name, ...productData } = req.body;
+
     try {
-        /* comprobar si existe la categoria */
-        const categoryExists = await Catergory.exists({ _id: category });
+        /* comprobar si existe la categoría */
+        const categoryExists = await Category.exists({ _id: category });
 
         if (!categoryExists) {
             return res.status(400).json({
@@ -29,10 +31,31 @@ export const startCreateProduct = async (
                 messages: MESSAGE_ERROR_RESPONSE.ARGUMENT
             });
         }
-        /*  guardamos el producto en caso la categoria exista */
-        const product = Product(req.body);
-        product.category = category;
+
+        /* generar el slug a partir del nombre */
+        const slug = slugify(name, {
+            strict: true,
+            lower: true
+        });
+
+        /* guardar el producto con la nueva data */
+        let product = new Product({
+            ...productData,
+            category,
+            name,
+            slug
+        });
+
         await product.save();
+
+        /* realizar populate en la categoría */
+        await product.populate('category', 'name');
+
+        const { category: relation, ...rest } = product._doc;
+        product = {
+            ...rest,
+            category: relation.name
+        };
 
         /* devolvemos un mensaje de ok */
         return res.status(200).json({
@@ -75,7 +98,7 @@ export const startUpdateProduct = async (
         }
 
         /* comprobar si existe la categoria que recibimos */
-        const categoryExists = await Catergory.exists({ _id: category });
+        const categoryExists = await Category.exists({ _id: category });
 
         if (!categoryExists) {
             return res.status(400).json({
@@ -85,13 +108,13 @@ export const startUpdateProduct = async (
         }
 
         /* guardar el producto con la nueva data */
-        const product = await Product.findByIdAndUpdate(
+        let product = await Product.findByIdAndUpdate(
             id,
             { ...update, category },
             {
                 new: true
             }
-        );
+        ).populate('category', 'name');
 
         /* si el producto no existe retorna un mensaje de error */
         if (!product) {
@@ -101,6 +124,12 @@ export const startUpdateProduct = async (
                     MESSAGE_DASHBOARD_ERROR_RESPONSE.NOT_FOUND_DOCUMENT(id)
             });
         }
+
+        const { category: relation, ...rest } = product._doc;
+        product = {
+            ...rest,
+            category: relation.name
+        };
 
         /* si existe retorna un mensaje de ok */
         return res.status(200).json({
@@ -127,6 +156,7 @@ export const startDeleteProduct = async (
 ) => {
     /* extraemos el ID de los params */
     const { id } = req.params;
+    console.log(id);
 
     /* validamos si el ID es un ObjectId */
     const isValid = isValidObjectId(id);
@@ -138,7 +168,9 @@ export const startDeleteProduct = async (
 
     try {
         /* verificamos que el producto a eliminar existe */
-        const product = await Product.findById(id);
+        let product = await Product.findById(id)
+            .select('-__v')
+            .populate('category', 'name');
         /* si no existe devolvemos un error */
         if (!product) {
             return res.status(404).json({
@@ -155,10 +187,20 @@ export const startDeleteProduct = async (
 
         /* guardamos el producto actualizado */
         await product.save();
+
+        const { category, ...rest } = product._doc;
+        product = {
+            ...rest,
+            category: category.name
+        };
+
+        console.log(product);
         /* si se guardo correctamente devolvemos un ok */
         return res.status(200).json({
             ok: true,
-            messages: MESSAGE_DASHBOARD_SUCCESS_RESPONSE.TOGGLE_PRODUCT(product)
+            messages:
+                MESSAGE_DASHBOARD_SUCCESS_RESPONSE.TOGGLE_PRODUCT(product),
+            product
         });
     } catch (error) {
         console.log(error);
@@ -173,30 +215,40 @@ export const startDeleteProduct = async (
 /* -------------------------------------------------------------------------- */
 export const startGetProduct = async (req = request, res = response, next) => {
     /* extraemos el ID de los params */
-    const { id } = req.params;
+    const { slug } = req.params;
 
     /* validamos si el ID es un ObjectId */
-    const isValid = isValidObjectId(id);
+    /* const isValid = isValidObjectId(id);
     if (!isValid) {
         return res
             .status(400)
             .json({ ok: false, messages: MESSAGE_ERROR_RESPONSE.ARGUMENT });
-    }
+    } */
     try {
         /* buscamos el producto por ID */
-        const product = await Product.findById(id).populate('category', 'name');
+        let product = await Product.findOne({ slug })
+            .select('-__v')
+            .populate('category', 'name');
+
         /* si no existe retornamos un error */
         if (!product) {
             return res.status(400).json({
                 ok: false,
                 messages:
-                    MESSAGE_DASHBOARD_ERROR_RESPONSE.NOT_FOUND_DOCUMENT(id)
+                    MESSAGE_DASHBOARD_ERROR_RESPONSE.NOT_FOUND_DOCUMENT(slug)
             });
         }
+
+        const { category, ...rest } = product._doc;
+        product = {
+            ...rest,
+            category: category.id
+        };
+
         /* devolvemos un ok */
         return res.status(200).json({
             ok: true,
-            product
+            product: product
         });
     } catch (error) {
         console.log(error);
@@ -204,5 +256,55 @@ export const startGetProduct = async (req = request, res = response, next) => {
             ok: false,
             messages: MESSAGE_ERROR_RESPONSE.DEFAULT
         });
+    }
+};
+/* -------------------------------------------------------------------------- */
+/*                           GET PRODUCTS PAGINATION                          */
+/* -------------------------------------------------------------------------- */
+export const startGetProducts = async (req = request, res = response, next) => {
+    const { _page, _limit, _search } = req.query;
+    try {
+        const startIndex = Number(_page) * _limit;
+
+        let query = Product.find();
+
+        if (_search) {
+            query = query.where('name', new RegExp(_search, 'i'));
+        }
+
+        let totalDocuments = await Product.countDocuments({});
+
+        if (_search) {
+            totalDocuments = await Category.countDocuments(query);
+        }
+
+        let products = await query
+            .select('-__v')
+            .populate('category', 'name')
+            .lean()
+            .sort({ _id: -1 })
+            .skip(startIndex)
+            .limit(Number(_limit));
+
+        const numberOfPages = Math.ceil(totalDocuments / _limit);
+
+        // Transformar los resultados para incluir "category_name" en lugar de "category"
+        products = products.map((product) => {
+            const { category, ...rest } = product;
+            return {
+                ...rest,
+                category: category.name
+            };
+        });
+
+        return res.status(200).json({
+            ok: true,
+            products,
+            page: Number(_page),
+            numberOfPages,
+            totalDocuments
+        });
+    } catch (error) {
+        console.log(error);
     }
 };

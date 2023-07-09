@@ -1,4 +1,7 @@
 import mongoose from 'mongoose';
+import { getEnvVariable } from '../helpers/getEnvVariable.js';
+
+const { MONGO_DB } = getEnvVariable();
 
 /* -------------------------------------------------------------------------- */
 /*                                CONNECTION DB                               */
@@ -6,7 +9,7 @@ import mongoose from 'mongoose';
 
 export const connectDB = async () => {
     try {
-        const cnx = await mongoose.connect(process.env.MONGO_DB, {
+        const cnx = await mongoose.connect(MONGO_DB, {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });

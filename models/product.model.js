@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+import { PRODUCT_STATUS } from '../interfaces/product.interface.js';
 
 const productSchema = Schema(
     {
@@ -10,6 +11,11 @@ const productSchema = Schema(
             type: String,
             required: true
         },
+        slug: {
+            type: String,
+            required: true,
+            unique: true
+        },
         price: {
             type: Number,
             required: true
@@ -20,15 +26,58 @@ const productSchema = Schema(
         },
         status: {
             type: String,
-            enum: ['ACTIVE', 'RETIRED'],
-            default: 'RETIRED'
+            enum: [PRODUCT_STATUS.ACTIVE, PRODUCT_STATUS.RETIRED],
+            default: PRODUCT_STATUS.RETIRED
         },
         stock: {
             type: Number,
             required: true
         },
-        image_paths: {
-            type: [String]
+        /* -------------------------------------------------------------------------- */
+        /*                      DESEAS AGREGAR ALGO A TU PEDIDO?                      */
+        /* -------------------------------------------------------------------------- */
+        toppings: {
+            type: Boolean,
+            required: true
+        },
+        /* -------------------------------------------------------------------------- */
+        /*                           SE TE ANTOJA ALGO MÁS?                           */
+        /* -------------------------------------------------------------------------- */
+        extraItems: {
+            type: Boolean,
+            required: true
+        },
+        /* -------------------------------------------------------------------------- */
+        /*                                COMPLEMENTOS                                */
+        /* -------------------------------------------------------------------------- */
+        addon: {
+            type: Boolean,
+            required: true
+        },
+        image_paths: [
+            {
+                name: {
+                    type: String,
+                    required: true
+                },
+                url: {
+                    type: String,
+                    required: true
+                }
+            }
+        ],
+        options: [
+            {
+                name: {
+                    type: String,
+                    required: true
+                }
+            }
+        ],
+        typeOfPersons: {
+            type: Number,
+            required: true,
+            default: 1
         }
     },
     {

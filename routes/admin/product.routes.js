@@ -3,6 +3,7 @@ import {
     startCreateProduct,
     startDeleteProduct,
     startGetProduct,
+    startGetProducts,
     startUpdateProduct
 } from '../../controllers/admin/product.controller.js';
 import { checkRoleAuth } from '../../middlewares/checkRoleAuth.middleware.js';
@@ -14,22 +15,26 @@ const router = Router();
 /* -------------------------------------------------------------------------- */
 /*                               CREATE PRODUCT                               */
 /* -------------------------------------------------------------------------- */
-router.post(
-    '/',
-    [
-        checkRoleAuth([USER_ROLES.ADMIN]),
-        ...productValidations,
-        expressValidator
-    ],
-    startCreateProduct
-);
+router
+    .route('/')
+    .post(
+        [
+            checkRoleAuth([USER_ROLES.ADMIN]),
+            ...productValidations,
+            expressValidator
+        ],
+        startCreateProduct
+    )
+    .get(startGetProducts);
+
+/* -------------------------------------------------------------------------- */
+/*                                 GET PRODUCT                                */
+/* -------------------------------------------------------------------------- */
+router.get('/:slug', checkRoleAuth([USER_ROLES.ADMIN]), startGetProduct);
 
 router
     .route('/:id')
-    /* -------------------------------------------------------------------------- */
-    /*                                 GET PRODUCT                                */
-    /* -------------------------------------------------------------------------- */
-    .get(checkRoleAuth([USER_ROLES.ADMIN]), startGetProduct)
+
     /* -------------------------------------------------------------------------- */
     /*                               UPDATE PRODUCT                               */
     /* -------------------------------------------------------------------------- */

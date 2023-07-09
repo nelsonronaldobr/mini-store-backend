@@ -100,20 +100,36 @@ export const MESSAGE_DASHBOARD_SUCCESS_RESPONSE = {
             type: 'success',
             msg: `El producto ${name} ha sido ${type} correctamente.`
         };
+    },
+    DELETE_IMAGE: (id) => ({
+        type: 'success',
+        msg: `La imagen con el ID ${id} ha sido eliminada.`
+    }),
+    ORDER_IMAGES: {
+        type: 'success',
+        msg: `Imagenes ordenadas con exito!`
     }
 };
 
 export const MESSAGE_DASHBOARD_ERROR_RESPONSE = {
     NOT_FOUND_DOCUMENT: (id) => ({
-        type: 'success',
+        type: 'error',
         msg: `El documento con el ID ${id} no fue encontrado.`
     }),
     EXIST_DOCUMENT: ({ id }) => ({
-        type: 'success',
+        type: 'error',
         msg: `El documento con el ID ${id} ya existe.`
     }),
     REQUIRED_FIELD: (field) => ({
         type: 'error',
         msg: `El campo ${field} es obligatorio.`
+    }),
+    LIMIT_EXCEEDED_IMAGES: {
+        type: 'error',
+        msg: `Se ha excedido el límite de 4 imágenes permitidas.`
+    },
+    IMAGE_NOT_EXIST: (id) => ({
+        type: 'error',
+        msg: `La imagen con el ID ${id} no fue encontrada.`
     })
 };

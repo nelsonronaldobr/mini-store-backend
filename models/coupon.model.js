@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+import { COUPON_STATUS } from '../interfaces/coupon.interface.js';
 
 const couponSchema = Schema(
     {
@@ -17,8 +18,8 @@ const couponSchema = Schema(
         },
         status: {
             type: String,
-            enum: ['ACTIVE', 'RETIRED'],
-            default: 'RETIRED'
+            enum: [COUPON_STATUS.ACTIVE, COUPON_STATUS.RETIRED],
+            default: COUPON_STATUS.RETIRED
         },
         with_quantity: {
             type: Boolean,
