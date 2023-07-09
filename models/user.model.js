@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+import { USER_STATUS } from '../interfaces/user.interface.js';
 
 const userSchema = Schema(
     {
@@ -26,8 +27,12 @@ const userSchema = Schema(
         },
         status: {
             type: String,
-            enum: ['VERIFIED', 'PENDING', 'BANNED'],
-            default: 'PENDING'
+            enum: [
+                USER_STATUS.VERIFIED,
+                USER_STATUS.PENDING,
+                USER_STATUS.BANNED
+            ],
+            default: USER_STATUS.PENDING
         },
         token: {
             type: String

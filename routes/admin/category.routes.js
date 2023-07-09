@@ -6,7 +6,9 @@ import {
     startCreateCategory,
     startGetCategory,
     startDeleteCategory,
-    startUpdateCategory
+    startUpdateCategory,
+    startGetCategoriesPerPage,
+    startGetCategories
 } from '../../controllers/admin/category.controller.js';
 import { expressValidator } from '../../middlewares/expressValidator.middleware.js';
 import { categoryValidations } from '../../validations/categoryValidations.js';
@@ -15,15 +17,19 @@ const router = Router();
 /* -------------------------------------------------------------------------- */
 /*                               CREATE CATEGORY                              */
 /* -------------------------------------------------------------------------- */
-router.post(
-    '/',
-    [
-        checkRoleAuth([USER_ROLES.ADMIN]),
-        ...categoryValidations,
-        expressValidator
-    ],
-    startCreateCategory
-);
+router
+    .route('/')
+    .post(
+        [
+            checkRoleAuth([USER_ROLES.ADMIN]),
+            ...categoryValidations,
+            expressValidator
+        ],
+        startCreateCategory
+    )
+    .get(startGetCategoriesPerPage);
+
+router.get('/devstore', startGetCategories);
 
 router
     .route('/:id')

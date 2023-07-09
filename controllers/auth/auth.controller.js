@@ -53,7 +53,9 @@ export const startLogin = async (req = request, res = response, next) => {
                     username: user.username,
                     photo_url: user.photo_url,
                     role: user.role.name,
-                    slug: user.slug
+                    slug: user.slug,
+                    status: user.status,
+                    email_verified: user.email_verified
                 },
                 tokenSession
             });
@@ -97,7 +99,7 @@ export const startRegister = async (req = request, res = response, next) => {
             });
         }
 
-        const role = await Role.findOne({ name: 'CUSTOMER' });
+        const role = await Role.findOne({ name: 'customer' });
         user = User(req.body);
         user.username = username;
         user.slug = slugify(username.toString(), {
@@ -137,7 +139,9 @@ export const startRenewToken = async (req = request, res = response, next) => {
             username: user.username,
             photo_url: user.photo_url,
             role: user.role.name,
-            slug: user.slug
+            slug: user.slug,
+            status: user.status,
+            email_verified: user.email_verified
         },
         tokenSession
     });
@@ -180,7 +184,9 @@ export const startConfirmAccount = async (
                 username: user.username,
                 photo_url: user.photo_url,
                 role: user.role.name,
-                slug: user.slug
+                slug: user.slug,
+                status: user.status,
+                email_verified: user.email_verified
             },
             tokenSession
         });

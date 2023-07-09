@@ -1,28 +1,39 @@
 import jwt from 'jsonwebtoken';
+import { getEnvVariable } from './getEnvVariable.js';
+
+const { JWT_SECRET } = getEnvVariable();
 
 /* -------------------------------------------------------------------------- */
 /*                             SIGN TOKEN SESSION                             */
 /* -------------------------------------------------------------------------- */
-export const tokenSign = async ({ _id, role }) => {
-    return jwt.sign(
-        {
-            _id: _id,
-            role: role.name
-        },
-        process.env.JWT_SECRET,
-        {
-            expiresIn: '2h'
-        }
-    );
+export const tokenSign = ({ _id, role }) => {
+    return new Promise((resolve, reject) => {
+        jwt.sign(
+            { _id, role: role.name },
+            JWT_SECRET,
+            { expiresIn: '2h' },
+            (error, token) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(token);
+                }
+            }
+        );
+    });
 };
 
 /* -------------------------------------------------------------------------- */
 /*                            VERIFY TOKEN SESSION                            */
 /* -------------------------------------------------------------------------- */
-export const verifyToken = async (token) => {
-    try {
-        return jwt.verify(token, process.env.JWT_SECRET);
-    } catch (error) {
-        return null;
-    }
+export const verifyToken = (token) => {
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, JWT_SECRET, (error, decodedToken) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(decodedToken);
+            }
+        });
+    });
 };

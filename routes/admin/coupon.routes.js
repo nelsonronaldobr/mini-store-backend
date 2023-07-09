@@ -4,7 +4,8 @@ import {
     startGetCoupon,
     startCreateCoupon,
     startUpdateCoupon,
-    startDeleteCoupon
+    startDeleteCoupon,
+    startGetCouponsPerPage
 } from '../../controllers/admin/coupon.controller.js';
 import { USER_ROLES } from '../../interfaces/user.interface.js';
 import { expressValidator } from '../../middlewares/expressValidator.middleware.js';
@@ -14,11 +15,17 @@ const router = Router();
 /* -------------------------------------------------------------------------- */
 /*                                CREATE COUPON                               */
 /* -------------------------------------------------------------------------- */
-router.post(
-    '/',
-    [checkRoleAuth([USER_ROLES.ADMIN]), ...couponValidations, expressValidator],
-    startCreateCoupon
-);
+router
+    .route('/')
+    .get(startGetCouponsPerPage)
+    .post(
+        [
+            checkRoleAuth([USER_ROLES.ADMIN]),
+            ...couponValidations,
+            expressValidator
+        ],
+        startCreateCoupon
+    );
 
 router
     .route('/:id')

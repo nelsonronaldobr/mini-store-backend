@@ -1,4 +1,4 @@
 export const PRODUCT_STATUS = {
-    RETIRED: 'RETIRED',
-    ACTIVE: 'ACTIVE'
+    RETIRED: 'retired',
+    ACTIVE: 'active'
 };

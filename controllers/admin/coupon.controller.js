@@ -11,6 +11,53 @@ import { COUPON_STATUS } from '../../interfaces/coupon.interface.js';
 //import('../interfaces/ResponseTypes.js');
 
 /* -------------------------------------------------------------------------- */
+/*                           GET COUPONS PAGINATION                           */
+/* -------------------------------------------------------------------------- */
+
+export const startGetCouponsPerPage = async (
+    req = request,
+    res = response,
+    next
+) => {
+    const { _page, _limit, _search } = req.query;
+
+    try {
+        const startIndex = Number(_page) * _limit;
+
+        let query = Coupon.find();
+
+        if (_search) {
+            query = query.where('name', new RegExp(_search, 'i'));
+        }
+
+        let totalDocuments = await Coupon.countDocuments({});
+
+        if (_search) {
+            totalDocuments = await Coupon.countDocuments(query);
+        }
+
+        const coupons = await query
+            .select('-__v')
+            .lean()
+            .sort({ _id: -1 })
+            .skip(startIndex)
+            .limit(Number(_limit));
+
+        const numberOfPages = Math.ceil(totalDocuments / _limit);
+
+        return res.status(200).json({
+            ok: true,
+            coupons,
+            page: Number(_page),
+            numberOfPages,
+            totalDocuments
+        });
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+/* -------------------------------------------------------------------------- */
 /*                              GET COUPON BY ID                              */
 /* -------------------------------------------------------------------------- */
 export const startGetCoupon = async (req = request, res = response, next) => {
