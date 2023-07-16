@@ -121,7 +121,7 @@ export const startCreateCoupon = async (
             });
         }
         /* creamos una instancia de cupon con los datos del body */
-        coupon = Coupon(req.body);
+        coupon = Coupon({ code, discount });
         /* calcumos el el descuento 20% = 0.2*/
         coupon.discount_percentage =
             parseFloat(discount.replace('%', '')) / 100;
@@ -268,7 +268,8 @@ export const startDeleteCoupon = async (
         /* si se guardo correctamente devolvemos un ok */
         return res.status(200).json({
             ok: true,
-            messages: MESSAGE_DASHBOARD_SUCCESS_RESPONSE.TOGGLE_COUPON(coupon)
+            messages: MESSAGE_DASHBOARD_SUCCESS_RESPONSE.TOGGLE_COUPON(coupon),
+            coupon
         });
     } catch (error) {
         console.log(error);

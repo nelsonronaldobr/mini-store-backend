@@ -7,6 +7,7 @@ import {
 import { Category } from '../../models/category.model.js';
 import mongoose, { isValidObjectId } from 'mongoose';
 import { CATEGORY_STATUS } from '../../interfaces/category.interface.js';
+import slugify from 'slugify';
 
 /* -------------------------------------------------------------------------- */
 /*                          GET CATEGORIES PAGINATION                         */
@@ -19,16 +20,15 @@ export const startGetCategoriesPerPage = async (
     const { _page = 1, _limit = 2, _search } = req.query;
     try {
         const startIndex = (Number(_page) - 1) * _limit;
+
         let query = Category.find();
+        let totalDocuments;
 
         if (_search) {
             query = query.where('name', new RegExp(_search, 'i'));
-        }
-
-        let totalDocuments = await Category.countDocuments({});
-
-        if (_search) {
             totalDocuments = await Category.countDocuments(query);
+        } else {
+            totalDocuments = await Category.countDocuments({});
         }
 
         const categories = await query
@@ -163,6 +163,11 @@ export const startCreateCategory = async (
     try {
         /* creamos una nueva instancia de categoria con los datos del body */
         const category = Category(create);
+
+        category.slug = slugify(category.name.toString(), {
+            strict: true,
+            lower: true
+        });
         /* guardamos la categoria */
         await category.save();
 
@@ -204,11 +209,16 @@ export const startUpdateCategory = async (
     }
 
     try {
+        const slug = slugify(update.name.toString(), {
+            strict: true,
+            lower: true
+        });
+
         /* guardamos la categoria con la nueva data */
         /* new : true para que nos devuelva la categoria actualizada */
         const category = await Category.findByIdAndUpdate(
             id,
-            { ...update },
+            { ...update, slug },
             {
                 new: true
             }
@@ -230,7 +240,10 @@ export const startUpdateCategory = async (
         });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ ok: false });
+        res.status(500).json({
+            ok: false,
+            messages: MESSAGE_ERROR_RESPONSE.DEFAULT
+        });
     }
 };
 /* -------------------------------------------------------------------------- */
