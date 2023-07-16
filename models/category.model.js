@@ -8,6 +8,11 @@ const categorySchema = Schema(
             required: true,
             unique: true
         },
+        slug: {
+            type: String,
+            required: true,
+            unique: true
+        },
         status: {
             type: String,
             enum: [CATEGORY_STATUS.ACTIVE, CATEGORY_STATUS.RETIRED],

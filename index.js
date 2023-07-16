@@ -3,6 +3,7 @@ import { connectDB } from './config/connectDB.js';
 import cors from 'cors';
 import authRouter from './routes/auth/auth.routes.js';
 import adminRouter from './routes/admin/admin.routes.js';
+import publicRouter from './routes/public/public.routes.js';
 import { Server } from 'socket.io';
 import { getEnvVariable } from './helpers/getEnvVariable.js';
 /* -------------------------------------------------------------------------- */
@@ -29,6 +30,8 @@ app.use('/api/auth', authRouter);
 
 /* DASHBOARD ADMIN - MIDDLEWARES */
 app.use('/api/admin/', adminRouter);
+/* PUBLIC API */
+app.use('/api/', publicRouter);
 
 /* -------------------------------------------------------------------------- */
 /*                                   LISTEN                                   */
@@ -63,7 +66,9 @@ io.on('connection', (socket) => {
         socket.to('admin').emit('refreshCategories');
         socket.to('salesman').emit('refreshCategories');
     });
-    //=======================================================
+    /* -------------------------------------------------------------------------- */
+    /*                               PRODUCT EVENTS                               */
+    /* -------------------------------------------------------------------------- */
     socket.on('createProduct', (product) => {
         const rooms = socket.rooms; // Obtener las salas del socket
         console.log('Salas del socket:', rooms);
@@ -84,5 +89,30 @@ io.on('connection', (socket) => {
         console.log('entro');
         socket.to('admin').emit('refreshProducts', product);
         socket.to('salesman').emit('refreshProducts', product);
+    });
+    /* -------------------------------------------------------------------------- */
+    /*                                COUPON EVENTS                               */
+    /* -------------------------------------------------------------------------- */
+
+    socket.on('createCoupon', (coupon) => {
+        const rooms = socket.rooms; // Obtener las salas del socket
+        console.log('Salas del socket:', rooms);
+        console.log('entro');
+        socket.to('admin').emit('addCoupon', coupon);
+        socket.to('salesman').emit('addCoupon', coupon);
+    });
+    socket.on('updateCoupon', (coupon) => {
+        const rooms = socket.rooms; // Obtener las salas del socket
+        console.log('Salas del socket:', rooms);
+        console.log('entro');
+        socket.to('admin').emit('refreshCoupons', coupon);
+        socket.to('salesman').emit('refreshCoupons', coupon);
+    });
+    socket.on('deleteCoupon', (coupon) => {
+        const rooms = socket.rooms; // Obtener las salas del socket
+        console.log('Salas del socket:', rooms);
+        console.log('entro');
+        socket.to('admin').emit('refreshCoupons', coupon);
+        socket.to('salesman').emit('refreshCoupons', coupon);
     });
 });

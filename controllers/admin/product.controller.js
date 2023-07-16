@@ -267,15 +267,13 @@ export const startGetProducts = async (req = request, res = response, next) => {
         const startIndex = Number(_page) * _limit;
 
         let query = Product.find();
+        let totalDocuments;
 
         if (_search) {
             query = query.where('name', new RegExp(_search, 'i'));
-        }
-
-        let totalDocuments = await Product.countDocuments({});
-
-        if (_search) {
-            totalDocuments = await Category.countDocuments(query);
+            totalDocuments = await Product.countDocuments(query);
+        } else {
+            totalDocuments = await Product.countDocuments({});
         }
 
         let products = await query
